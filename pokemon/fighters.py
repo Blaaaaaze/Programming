@@ -1,4 +1,19 @@
-class Pokemon:
+import abilities
+import time
+from abc import ABC, abstractmethod
+
+# Декоратор
+#Делает задержку в 3 секунды до вызова функции
+def My_decorator(method_for_decorate):
+    def wrapper_for_dec(self, name_of_poke):
+        timing = time.time()
+        while True:
+            if time.time() - timing > 3.0:
+                timing = time.time()
+                return method_for_decorate(self, name_of_poke)
+    return wrapper_for_dec
+
+class Pokemon(ABC):
     #конструктор
     def __init__(self):
         #Инкапсуляция: все переменные запривачены. Доступ к ним не из класса Pokemon доступен с помощью гетеров и сетеров
@@ -56,6 +71,8 @@ class Pokemon:
         self.__type = type
 
     #базовая атака
+
+    #@abstractmethod
     def attack(self, me, enemy):
         enemy.set_hp(enemy.get_hp() - me.get_hit())
         print(f"Покемон {me.get_name()} совершил базовую атаку мощностью {me.get_hit()}. Покемон {enemy.get_name()} теперь имеет {enemy.get_hp()} очков здоровья. ")
@@ -105,7 +122,7 @@ class Pokemon:
 
 
 #Классы покемонов(пока 4 стартовых, потом мб добавлю еще)
-class Pikachu(Pokemon):
+class Pikachu(Pokemon, abilities.Abilities):
     def __init__(self):
         super().__init__()
         self.__type = "Electric" #тип либо ни на что не повлияет либо я введу контртипы
@@ -119,26 +136,14 @@ class Pikachu(Pokemon):
     #Абилки не соответствуют полностью с описанием на сайте, так как все делается в учебных целях и есть интерес сделать разные механики
     #Все спешл атаки, у которых используется атрибут enemy являются атакующими, т.е. изменяют состояние другого покемона
     #Реализована перегрузка(мб не оч корректно)
-    def Special1(self,me, enemy): #Nuzzle
-        if enemy.get_status() != 'Shield':
-            enemy.set_status('Stan')
-            enemy.set_timeEff(1)
-            enemy.set_hp(enemy.get_hp() - 5)
-            print(f"У покемона {enemy.get_name()} не было щита, поэтому теперь он углушен")
+    def Special1(self, me, enemy): #Nuzzle
+        super().Nuzzle(me, enemy)
+
 
     # Реализована перегрузка(мб не оч корректно)
     def Special2(self,me, enemy): #Iron_tail
-        if enemy.get_status() == "Shield":
-            enemy.set_hp(enemy.get_hp() - 10)
-            enemy.set_status("Normal")
-            print(f"У покемона {enemy.get_name()} был щит. Теперь он сбит\n"
-                  f"Покемон {enemy.get_name()} потерял 10 очков здоровья. Теперь его здоровье равно {enemy.get_hp()}")
-        else:
-            enemy.set_hp(enemy.get_hp() - 30)
-            print(f"У покемона {enemy.get_name()} не было щита\n"
-                  f"Покемон {enemy.get_name()} потерял 30 очков здоровья. Теперь его здоровье равно {enemy.get_hp()}")
-
-
+        super().IronTeil(me, enemy)
+    @My_decorator
     def tutorial(self, me): #Стартовая инфа о выбранном классе покемона
         print(f"Вы выбрали покемона {me.get_name()}\n"
               f"Способности Покемона класса {me.get_name()}:\n"
@@ -154,7 +159,7 @@ class Pikachu(Pokemon):
 
 #Далее по аналогии с пикачу, поэтому комментариев не будет (ток если не появится что-то уникальное)
 
-class Charmander(Pokemon):
+class Charmander(Pokemon, abilities.Abilities):
     def __init__(self):
         super().__init__()
         self.__type = "Fire"
@@ -165,32 +170,17 @@ class Charmander(Pokemon):
     #Спешл атаки:
     # Реализована перегрузка(мб не оч корректно)
     def Special1(self, me, enemy): #FireFang
-        if enemy.get_status() != "Shield" and enemy.get_type() != 'Water':
-            enemy.set_status("Fire")
-            enemy.set_timeEff(2)
-            enemy.set_hp(enemy.get_hp() - 10)
-            print(f"Покемон {enemy.get_name()} атакован. Он потерял 10 очков здоровья. Теперь его здоровье равно {enemy.get_hp()}\n"
-                  f"Покемон {enemy.get_name()} горит\n"
-                  f"Покемон {enemy.get_name()} потерял 3 очка здоровья. Теперь его здоровье равно {enemy.get_hp()}\n"
-                  f"Осталось ходов до окончания эффекта: {me.get_timeEff()}")
-        else:
-            if enemy.get_status() == "Shield":
-                print(f'Покемон {enemy.get_name()} имеет щит. Способность не сработала')
-            elif enemy.get_type() == 'Water':
-                print(f'Покемон {enemy.get_name()} является водным типом. Способность не сработала')
+        super().FireFang(me, enemy)
+
 
 
     #Защитная способность, поэтому действует на себя, а не на противника(enemy не задействован)
     # Реализована перегрузка(мб не оч корректно)
     def Special2(self, me, enemy): #Protect
-        me.set_status("Shield")
-        me.set_hp(me.get_hp() + 10)
-        me.set_timeEff(2)
-        print(f"Покемон {me.get_name()} получил щит. Теперь он неуязвим с эффектами контроля\n"
-              f"Покемон {me.get_name()} получает 10 дополнительных очков здоровья от щита. Теперь его здоровье равно {me.get_hp()}\n"
-              f"До конца эффекта щита осталось {me.get_timeEff()} ходов")
+        super().Protect(me, enemy)
 
 
+    @My_decorator
     def tutorial(self, me):  # Стартовая инфа о выбранном классе покемона
         print(f"Вы выбрали покемона {me.get_name()}\n"
               f"Способности Покемона класса {me.get_name()}:\n"
@@ -206,7 +196,7 @@ class Charmander(Pokemon):
 
 
 
-class Bulbosaur(Pokemon):
+class Bulbosaur(Pokemon, abilities.Abilities):
     def __init__(self):
         super(Bulbosaur, self).__init__()
         self.__type = "Grass"
@@ -217,30 +207,18 @@ class Bulbosaur(Pokemon):
     #Спешл атаки
     # Реализована перегрузка(мб не оч корректно)
     def Special1(self, me, enemy): #Poison Powder
-        if enemy.get_status() != "Shield":
-            enemy.set_status("Poison")
-            enemy.set_timeEff(2)
-            enemy.set_hp(enemy.get_hp() - 10)
-            print(f"Покемон {enemy.get_name()} атакован. Он потерял 10 очков здоровья. Теперь его здоровье равно {enemy.get_hp()}\n"
-                  f"Покемон {enemy.get_name()} отравлен\n"
-                  f"Покемон {enemy.get_name()} потерял 2 очка здоровья. Теперь его здоровье равно {enemy.get_hp()}\n"
-                  f"до снятия эффекта отравления осталось {enemy.get_timeEff()} ходов\n")
+        super().PoisonPowder(me, enemy)
+
 
 
     #Задумка в том, что если противник уже "отравлен", то атака несет эффект вампиризма(отнимается здоровье у противника, в таком же объеме восстанавливается здоровье у себя)
     # + чуть выше урон(Очень ситуативна, но в этом и интерес)
     # Реализована перегрузка(мб не оч корректно)
     def Special2(self, me, enemy): #НЕ СООТВЕТСТВУЕТ ОПИСАНИЮ: Leech Seed
-        if enemy.get_status() == "Poison":
-            enemy.set_hp(enemy.get_hp() - 25)
-            me.set_hp(me.get_hp() + 25)
-            print(f"Покемон {enemy.get_name()} является отравленным.\n"
-                  f"Покемон {enemy.get_name()} атакован. Он теряет 25 очков здоровья. Теперь его здоровье равно {enemy.get_hp()}\n"
-                  f"Покемон {me.get_name()} восстанавливает 25 очков здоровья благодаря эффекту вамиризма. Теперь его здоровье равно {me.get_hp()}")
-        else:
-            print(f"Покемон {enemy.get_name()} не отравлен. Атака не имеет никакого эффекта")
+        super().LeechSeed(me, enemy)
 
 
+    @My_decorator
     def tutorial(self, me):  # Стартовая инфа о выбранном классе покемона
         print(f"Вы выбрали покемона {me.get_name()}\n"
               f"Способности Покемона класса {me.get_name()}:\n"
@@ -256,7 +234,7 @@ class Bulbosaur(Pokemon):
 
 
 
-class Squirtle(Pokemon):
+class Squirtle(Pokemon, abilities.Abilities):
     def __init__(self):
         super().__init__()
         self.__type = "Water"
@@ -269,23 +247,16 @@ class Squirtle(Pokemon):
     #Повышение базовой атаки на 5 + нанесение половины урона нового значения базовой атаки
     # Реализована перегрузка(мб не оч корректно)
     def Special1(self, me, enemy): #НЕ СООТВЕТСТВУЕТ ОПИСАНИЮ: Withdraw
-        me.set_hit(me.get_hit() + 5)
-        enemy.set_hp(enemy.get_hp() - (me.get_hit() // 2))
-        print(f"Покемон {me.get_name()} повышает свою базовую атаку на 5 очков. Теперь его атака равна {me.get_hit()}\n"
-              f"Покемон {me.get_name()} атакует покемона {enemy.get_name()} в пол силы\n"
-              f"Покемон {enemy.get_name()} атакован. Он потерял {me.get_hit() // 2} hp. Теперь его здоровье равно {enemy.get_hp()}")
+        super().Withdraw(me, enemy)
 
 
     #Покемон лечит 25 здоровья, но теряет 5 пунктов атаки
     #Балансится тем, что 5 атаки прибаваляются другой абилкой
     # Реализована перегрузка(мб не оч корректно)
     def Special2(self, me, enemy): #НЕ СООТВЕТСТВУЕТ ОПИСАНИЮ: Rain Dance
-        if me.get_hit() > 5:
-            me.set_hp(me.get_hp() + 25)
-            me.set_hit(me.get_hit() - 5)
-            print(f'Покемон {me.get_name()} восстанавливает 25 очков здоровья. Теперь его здоровье равно {me.get_hp()}\n'
-                  f'Покемон {me.get_name()} теряет 5 очков атаки. Теперь его атака равна {me.get_hit()}')
+        super(Squirtle, self).RainDance(me, enemy)
 
+    @My_decorator
     def tutorial(self, me):  # Стартовая инфа о выбранном классе покемона
         print(f"Вы выбрали покемона {me.get_name()}\n"
               f"Способности Покемона класса {me.get_name()}:\n"

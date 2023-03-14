@@ -1,6 +1,13 @@
 import fighters
+import time
+
+
+
+
 
 class Fight:
+
+
     #Пик покемонов
     def take_pokemon(self):
         while True: #Добивается правильного ввода
@@ -13,18 +20,22 @@ class Fight:
             if first_pick == '1':
                 poke1 = fighters.Pikachu()
                 poke1.set_name("Pikachu")
+                poke1.tutorial(poke1)
                 break
             elif first_pick == '2':
                 poke1 = fighters.Charmander()
                 poke1.set_name("Charmander")
+                poke1.tutorial(poke1)
                 break
             elif first_pick == '3':
                 poke1 = fighters.Bulbosaur()
                 poke1.set_name("Bulbosaur")
+                poke1.tutorial(poke1)
                 break
             elif first_pick == '4':
                 poke1 = fighters.Squirtle()
                 poke1.set_name("Squirtle")
+                poke1.tutorial(poke1)
                 break
             else:
                 print("Некорректный ввод")
@@ -39,18 +50,22 @@ class Fight:
             if second_pick == '1':
                 poke2 = fighters.Pikachu()
                 poke2.set_name("Pikachu")
+                poke2.tutorial(poke2)
                 break
             elif second_pick == '2':
                 poke2 = fighters.Charmander()
                 poke2.set_name("Charmander")
+                poke2.tutorial(poke2)
                 break
             elif second_pick == '3':
                 poke2 = fighters.Bulbosaur()
                 poke2.set_name("Bulbosaur")
+                poke2.tutorial(poke2)
                 break
             elif second_pick == '4':
                 poke2 = fighters.Squirtle()
                 poke2.set_name("Squirtle")
+                poke2.tutorial(poke2)
                 break
             else:
                 print("Некорректный ввод")
@@ -92,6 +107,7 @@ class Fight:
                 warrior1.check_my_status() #Проверка на эффекты
                 if warrior1.get_PossMove() == 1: #Если не оглушен
                     warrior1.fight_help(warrior1) #напоминание куда жмякать
+
                     Fight.use_pokemon(self, warrior1, warrior2) #Выбор действия покемона, реализация выбранного способности
                 else:
                     print(f"Покемон {warrior1.get_name()} пропускает ход")
