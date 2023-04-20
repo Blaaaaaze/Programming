@@ -77,15 +77,14 @@ class Pokemon(ABC):
         enemy.set_hp(enemy.get_hp() - me.get_hit())
         print(f"Покемон {me.get_name()} совершил базовую атаку мощностью {me.get_hit()}. Покемон {enemy.get_name()} теперь имеет {enemy.get_hp()} очков здоровья. ")
 
-    #базовые спешл атаки
-    #Здесь будет перегрузка в дочерних классах
+    @abstractmethod
     def Special1(self, enemy):
         if enemy.get_status() != "Shield":
             enemy.set_hp(enemy.get_hp() -(self.__hit)*2)
             print(f'Покемон {self.__name} проводит двйоную атаку\n'
                   f'Покемон {enemy.get_name()} теряет {(self.__hit)*2}. Теперь его здоровье равно {enemy.get_hp()}')
 
-    #Здесь тоже будет перегрузка
+    @abstractmethod
     def Special2(self):
         self.__hp = self.__hp + 30
         print(f'Покемон {self.__name} восстановил 30 очков здоровья. Теперь его здоровье равно {self.__hp}')
