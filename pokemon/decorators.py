@@ -14,13 +14,13 @@ def My_decorator(method_for_decorate):
 
 
 
-
+#Попытка сделать битву ботов скрытой от глаз. Пока что не успешная, заготовка на будущее
 def BotDec(method_for_decorate):
-    # Disable
+    # Отключает отображение принта
     def blockPrint():
         sys.stdout = open(os.devnull, 'w')
 
-    # Restore
+    #восстанавливает отображение принта
     def enablePrint():
         sys.stdout = sys.__stdout__
 
@@ -33,6 +33,7 @@ def BotDec(method_for_decorate):
         return method_for_decorate(self, me, enemy, bot)
     return wrapper_for_dec
 
+#восстанавливает отображение принта
 def EnablePrint():
     # Restore
     def enablePrint():

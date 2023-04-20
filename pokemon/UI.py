@@ -1,13 +1,11 @@
-
+import asyncio
 import threading
 import fightclass
 import exceptions
 import sqlite3
 import BotThread
-print('Добро пожаловать в Pokemon Fighting Game')
-# Programm = Users.InterFace()
-# Programm.main()
 
+#Класс для потоков
 class MyThread(threading.Thread):
     """
     Пример threading
@@ -19,27 +17,32 @@ class MyThread(threading.Thread):
         self.name = name
         self.counter = counter
 
+
+    #что эти потоки запускают в себе и вызывается сразу с исполнением
     def run(self):
         """Запуск потока"""
         check = BotThread.BotFight()
         check.Battle()
 
-
+#класс меню, для использования всего функционала без выхода из программы
 class InterFace:
-
+    #Метод для создания потоков, класс которых написан выше
     def create_threads(self):
         """
         Создаем группу потоков
         """
         for i in range(2):
+            print(f'Бой номер {i + 1}')
             name = 'Thread'
             my_thread = MyThread(name, i)
             my_thread.start()
-            my_thread.join()
+            my_thread.join() #Если ее убрать они будут идти можно сказать параллельно, что не удобно и не красиво.
+            #При испольховании такой меню, без строки выше прога корректно не работает
+
 
 
     def menu(self):
-        commands = ['Начать матч', 'Провести быстрые бои между ботами', 'Посмотреть историю матчей'] #Список возможных опций(Ещё может дополниться)
+        commands = ['Начать матч', 'Провести быстрые бои между ботами', 'Посмотреть историю матчей', 'Выйти'] #Список возможных опций(Ещё может дополниться)
         print('Выберите опцию:')
         #Вывод всех опций
         for i in range(len(commands)):
@@ -54,20 +57,23 @@ class InterFace:
                     if int(choose) > len(commands):
                         raise exceptions.IncorrectInputExcError #Ошибка ввода
                     else:
-
+                        #ifы стоят не попорядку, потому что почему то finally для choose == 3 вызывает ошибку, если под ним что-то есть
                         #обычный бой
                         if int(choose) == 1:
                             battle = fightclass.Fight()
                             battle.Battle()
-                            self.menu() #Возвращение в меню
-
+                            return
                         #Бой между ботами (заготовка к турнирам)
                         elif int(choose) == 2:
 
                             if __name__ == "__main__":
                                 self.create_threads()
+                            return
 
-                            self.menu() #Возвращение в меню
+                        #Выход из системы
+                        elif int(choose) == 4:
+                            print('Вы вышли из системы')
+                            exit()
 
 
                         #Просмотреть историю матчей(в том числе ботов)
@@ -87,33 +93,19 @@ class InterFace:
                             except sqlite3.Error:
 
                                 print('Просмотреть историю матчей в данный момент невозможно')
-
                             finally:
                                 if (connection):
                                     connection.commit()
                                     connection.close()
-                            #Возвращение в меню или выход из программы
-                            action = input('Хотите выйти из программы?')
-                            if action == 'Да' or action == 'да':
-                                print('Вы вышли из системы')
-                                exit()
-                            elif action == 'Нет' or action == 'нет':
-                                self.menu()
+                                    return
+
             except exceptions.IncorrectInputExcError:
                 print('Неверный ввод! Такой команды нет. Повторите попытку')
 
 
-def create_threads():
-    """
-    Создаем группу потоков
-    """
-    for i in range(2):
-        print(f'Бой номер {i+1}')
-        name = 'Thread'
-        my_thread = MyThread(name, i)
-        my_thread.start()
-        my_thread.join()
 
 print('Добро пожаловать в Pokemon Fighting Game')
 my_game = InterFace()
-my_game.menu()
+#обеспечиваер беспрерывную работу
+while True:
+    my_game.menu()

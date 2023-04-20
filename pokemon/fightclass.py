@@ -2,6 +2,7 @@ import fighters
 import exceptions
 import sqlite3
 import decorators
+import asyncio
 class Fight:
 
 
@@ -90,7 +91,9 @@ class Fight:
             else:
                 print("Неверный ввод")
 
-    def BD_update(self, fighter1, fighter2):
+
+    #ассинхронный метод
+    async def BD_update(self, fighter1, fighter2):
         # Работа с базой данных. После завершения матча будет записывать
         try:
             connection = sqlite3.connect('Poke.db')
@@ -166,7 +169,10 @@ class Fight:
 
             #Отслеживать конец
             if warrior1.get_hp() <= 0 or warrior2.get_hp() <=0:
-                Fight.BD_update(self, warrior1, warrior2)
+                #создание цикла событий
+                loop = asyncio.get_event_loop()
+                #Добавление события и его исполнение
+                loop.run_until_complete(Fight.BD_update(self, warrior1, warrior2))
                 print('Спасибо за игру!')
                 return
 
