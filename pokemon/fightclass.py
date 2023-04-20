@@ -1,7 +1,7 @@
 import fighters
 import exceptions
-import threading
 import sqlite3
+import decorators
 class Fight:
 
 
@@ -79,13 +79,13 @@ class Fight:
         while True:
             move = input('Введите порядковый номер атаки: ')
             if move == '1':
-                poke.attack(poke, enemy)
+                poke.attack(poke, enemy, 0)
                 break
             elif move == '2':
-                poke.Special1(poke, enemy)
+                poke.Special1(poke, enemy, 0)
                 break
             elif move == '3':
-                poke.Special2(poke, enemy)
+                poke.Special2(poke, enemy, 0)
                 break
             else:
                 print("Неверный ввод")
@@ -96,9 +96,8 @@ class Fight:
             connection = sqlite3.connect('Poke.db')
 
             cur = connection.cursor()
-            print("База данных создана и подключена к SQLite")
             cur.execute("CREATE TABLE IF NOT EXISTS tHistory(name_of_win, hp_of_win)")
-
+            decorators.EnablePrint()
             if fighter1.get_hp() <= 0:  # У первого покемона закончилось hp
                 print(f"Покемон {fighter1.get_name()} проиграл")
                 name = fighter2.get_name()
@@ -111,10 +110,6 @@ class Fight:
                 hp = fighter1.get_hp()
                 win = (name, hp)
                 cur.execute('INSERT INTO tHistory(name_of_win, hp_of_win) VALUES (?, ?)', win)
-
-                print('Прошлые матчи:')
-                res = cur.execute('SELECT * FROM tHistory')
-                print(res.fetchall())
 
         except sqlite3.Error:
 
@@ -151,29 +146,28 @@ class Fight:
                         raise exceptions.CantTurnError
                     warrior1.fight_help(warrior1) #напоминание куда жмякать
 
-                    Fight.use_pokemon(self, warrior1, warrior2) #Выбор действия покемона, реализация выбранного способности
+                    self.use_pokemon(warrior1, warrior2) #Выбор действия покемона, реализация выбранного способности
                 except exceptions.CantTurnError:
                     print(f"Покемон {warrior1.get_name()} пропускает ход")
 
             #Действия второго
             else:
                 print(f'Ход покемона {warrior2.get_name()}')
+
                 warrior2.check_my_status() #Проверка на эффекты
                 #использование исключения вместо флага состояния, насколько корректно это я не знаю, но вроде норм
                 try:
                     if warrior2.get_PossMove() == 0:#Если не оглушен
                         raise exceptions.CantTurnError
                     warrior2.fight_help(warrior2) #подсказка по способностям
-                    Fight.use_pokemon(self, warrior2, warrior1) #Выбор действия покемона, реализация выбранного способности
+                    self.use_pokemon(warrior2, warrior1) #Выбор действия покемона, реализация выбранного способности
                 except exceptions.CantTurnError:
                     print(f"Покемон {warrior2.get_name()} пропускает ход")
 
             #Отслеживать конец
             if warrior1.get_hp() <= 0 or warrior2.get_hp() <=0:
                 Fight.BD_update(self, warrior1, warrior2)
-                print('Спасибо за игру')
+                print('Спасибо за игру!')
+                return
 
-                exit()
 
-
-    # Fight.Battle()

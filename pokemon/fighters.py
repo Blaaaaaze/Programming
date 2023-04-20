@@ -1,17 +1,8 @@
 import abilities
-import time
+from decorators import My_decorator
 from abc import ABC, abstractmethod
 
-# Декоратор
-#Делает задержку в 3 секунды до вызова функции
-def My_decorator(method_for_decorate):
-    def wrapper_for_dec(self, name_of_poke):
-        timing = time.time()
-        while True:
-            if time.time() - timing > 3.0:
-                timing = time.time()
-                return method_for_decorate(self, name_of_poke)
-    return wrapper_for_dec
+
 
 class Pokemon(ABC):
     #конструктор
@@ -73,7 +64,7 @@ class Pokemon(ABC):
     #базовая атака
 
     #@abstractmethod
-    def attack(self, me, enemy):
+    def attack(self, me, enemy, bot):
         enemy.set_hp(enemy.get_hp() - me.get_hit())
         print(f"Покемон {me.get_name()} совершил базовую атаку мощностью {me.get_hit()}. Покемон {enemy.get_name()} теперь имеет {enemy.get_hp()} очков здоровья. ")
 
@@ -135,13 +126,13 @@ class Pikachu(Pokemon, abilities.Abilities):
     #Абилки не соответствуют полностью с описанием на сайте, так как все делается в учебных целях и есть интерес сделать разные механики
     #Все спешл атаки, у которых используется атрибут enemy являются атакующими, т.е. изменяют состояние другого покемона
     #Реализована перегрузка(мб не оч корректно)
-    def Special1(self, me, enemy): #Nuzzle
-        super().Nuzzle(me, enemy)
+    def Special1(self, me, enemy, bot): #Nuzzle
+        super().Nuzzle(me, enemy, bot)
 
 
     # Реализована перегрузка(мб не оч корректно)
-    def Special2(self,me, enemy): #Iron_tail
-        super().IronTeil(me, enemy)
+    def Special2(self,me, enemy, bot): #Iron_tail
+        super().IronTeil(me, enemy, bot)
     @My_decorator
     def tutorial(self, me): #Стартовая инфа о выбранном классе покемона
         print(f"Вы выбрали покемона {me.get_name()}\n"
@@ -168,15 +159,15 @@ class Charmander(Pokemon, abilities.Abilities):
 
     #Спешл атаки:
     # Реализована перегрузка(мб не оч корректно)
-    def Special1(self, me, enemy): #FireFang
-        super().FireFang(me, enemy)
+    def Special1(self, me, enemy, bot): #FireFang
+        super().FireFang(me, enemy, bot)
 
 
 
     #Защитная способность, поэтому действует на себя, а не на противника(enemy не задействован)
     # Реализована перегрузка(мб не оч корректно)
-    def Special2(self, me, enemy): #Protect
-        super().Protect(me, enemy)
+    def Special2(self, me, enemy, bot): #Protect
+        super().Protect(me, enemy, bot)
 
 
     @My_decorator
@@ -205,16 +196,16 @@ class Bulbosaur(Pokemon, abilities.Abilities):
 
     #Спешл атаки
     # Реализована перегрузка(мб не оч корректно)
-    def Special1(self, me, enemy): #Poison Powder
-        super().PoisonPowder(me, enemy)
+    def Special1(self, me, enemy, bot): #Poison Powder
+        super().PoisonPowder(me, enemy, bot)
 
 
 
     #Задумка в том, что если противник уже "отравлен", то атака несет эффект вампиризма(отнимается здоровье у противника, в таком же объеме восстанавливается здоровье у себя)
     # + чуть выше урон(Очень ситуативна, но в этом и интерес)
     # Реализована перегрузка(мб не оч корректно)
-    def Special2(self, me, enemy): #НЕ СООТВЕТСТВУЕТ ОПИСАНИЮ: Leech Seed
-        super().LeechSeed(me, enemy)
+    def Special2(self, me, enemy, bot): #НЕ СООТВЕТСТВУЕТ ОПИСАНИЮ: Leech Seed
+        super().LeechSeed(me, enemy, bot)
 
 
     @My_decorator
@@ -245,15 +236,15 @@ class Squirtle(Pokemon, abilities.Abilities):
     #Спешл атаки
     #Повышение базовой атаки на 5 + нанесение половины урона нового значения базовой атаки
     # Реализована перегрузка(мб не оч корректно)
-    def Special1(self, me, enemy): #НЕ СООТВЕТСТВУЕТ ОПИСАНИЮ: Withdraw
-        super().Withdraw(me, enemy)
+    def Special1(self, me, enemy, bot): #НЕ СООТВЕТСТВУЕТ ОПИСАНИЮ: Withdraw
+        super().Withdraw(me, enemy, bot)
 
 
     #Покемон лечит 25 здоровья, но теряет 5 пунктов атаки
     #Балансится тем, что 5 атаки прибаваляются другой абилкой
     # Реализована перегрузка(мб не оч корректно)
-    def Special2(self, me, enemy): #НЕ СООТВЕТСТВУЕТ ОПИСАНИЮ: Rain Dance
-        super(Squirtle, self).RainDance(me, enemy)
+    def Special2(self, me, enemy, bot): #НЕ СООТВЕТСТВУЕТ ОПИСАНИЮ: Rain Dance
+        super(Squirtle, self).RainDance(me, enemy, bot)
 
     @My_decorator
     def tutorial(self, me):  # Стартовая инфа о выбранном классе покемона

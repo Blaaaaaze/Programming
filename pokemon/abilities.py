@@ -1,15 +1,20 @@
+from decorators import BotDec
+
+
+
 #Класс абилок всех покемонов, чтобы при создании новых покемонов было удобно добавлять новые способности или миксовать старые
 #Класс миксин
 class Abilities():
 
-    def Nuzzle(self, me, enemy):
+    def Nuzzle(self, me, enemy, bot):
         if enemy.get_status() != 'Shield':
             enemy.set_status('Stan')
             enemy.set_timeEff(1)
             enemy.set_hp(enemy.get_hp() - 5)
             print(f"У покемона {enemy.get_name()} не было щита, поэтому теперь он углушен")
 
-    def IronTeil(self, me, enemy):
+
+    def IronTeil(self, me, enemy, bot):
         if enemy.get_status() == "Shield":
             enemy.set_hp(enemy.get_hp() - 10)
             enemy.set_status("Normal")
@@ -21,7 +26,7 @@ class Abilities():
                   f"Покемон {enemy.get_name()} потерял 30 очков здоровья. Теперь его здоровье равно {enemy.get_hp()}")
 
 
-    def FireFang(self, me, enemy): #FireFang
+    def FireFang(self, me, enemy, bot): #FireFang
         if enemy.get_status() != "Shield" and enemy.get_type() != 'Water':
             enemy.set_status("Fire")
             enemy.set_timeEff(2)
@@ -37,8 +42,7 @@ class Abilities():
                 print(f'Покемон {enemy.get_name()} является водным типом. Способность не сработала')
 
 
-
-    def Protect(self, me, enemy): #Protect
+    def Protect(self, me, enemy, bot): #Protect
         me.set_status("Shield")
         me.set_hp(me.get_hp() + 10)
         me.set_timeEff(2)
@@ -47,7 +51,7 @@ class Abilities():
               f"До конца эффекта щита осталось {me.get_timeEff()} ходов")
 
 
-    def PoisonPowder(self, me, enemy): #Poison Powder
+    def PoisonPowder(self, me, enemy, bot): #Poison Powder
         if enemy.get_status() != "Shield":
             enemy.set_status("Poison")
             enemy.set_timeEff(2)
@@ -58,7 +62,7 @@ class Abilities():
                   f"до снятия эффекта отравления осталось {enemy.get_timeEff()} ходов\n")
 
 
-    def LeechSeed(self, me, enemy): #НЕ СООТВЕТСТВУЕТ ОПИСАНИЮ: Leech Seed
+    def LeechSeed(self, me, enemy, bot): #НЕ СООТВЕТСТВУЕТ ОПИСАНИЮ: Leech Seed
         if enemy.get_status() == "Poison":
             enemy.set_hp(enemy.get_hp() - 25)
             me.set_hp(me.get_hp() + 25)
@@ -69,7 +73,7 @@ class Abilities():
             print(f"Покемон {enemy.get_name()} не отравлен. Атака не имеет никакого эффекта")
 
 
-    def Withdraw(self, me, enemy): #НЕ СООТВЕТСТВУЕТ ОПИСАНИЮ: Withdraw
+    def Withdraw(self, me, enemy, bot): #НЕ СООТВЕТСТВУЕТ ОПИСАНИЮ: Withdraw
         me.set_hit(me.get_hit() + 5)
         enemy.set_hp(enemy.get_hp() - (me.get_hit() // 2))
         print(f"Покемон {me.get_name()} повышает свою базовую атаку на 5 очков. Теперь его атака равна {me.get_hit()}\n"
@@ -77,7 +81,7 @@ class Abilities():
               f"Покемон {enemy.get_name()} атакован. Он потерял {me.get_hit() // 2} hp. Теперь его здоровье равно {enemy.get_hp()}")
 
 
-    def RainDance(self, me, enemy): #НЕ СООТВЕТСТВУЕТ ОПИСАНИЮ: Rain Dance
+    def RainDance(self, me, enemy, bot): #НЕ СООТВЕТСТВУЕТ ОПИСАНИЮ: Rain Dance
         if me.get_hit() > 5:
             me.set_hp(me.get_hp() + 25)
             me.set_hit(me.get_hit() - 5)

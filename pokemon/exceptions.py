@@ -16,3 +16,6 @@ class CantTurnError(Error):
     '''Невозможность сделать ход (активный эффект оглушения)'''
     pass
 
+class BotTurnError(Error):
+    '''Если играет бот, а не человек'''
+    pass
