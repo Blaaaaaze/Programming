@@ -15,3 +15,7 @@ class NoDataInBDError(Error):
     '''Таких данных нет в базе данных пользователей'''
     pass
 
+class DublicateidError(Error):
+    '''Указанный id уже существует'''
+    pass
+

@@ -3,6 +3,8 @@ from Exceptions import *
 import re
 import sqlite3
 import datetime
+from tkinter import *
+import InterFace
 
 
 class BD: #класс для методов работы с бд
@@ -138,35 +140,40 @@ class BD: #класс для методов работы с бд
 class Menu(BD):
     #Основной блок
     #метод для выполнения входа в аккаунты или создание нового
-    def log_in(self, admin, first):#принимает 2 параметра: Если admin = 1, то проверка по графе админов, 0 - по обычной; first = 1 - добавление новых данных в бд, 0 - обычный вход, проверка по таблице пользователей
+    def Log_in(self, admin, first):#принимает 2 параметра: Если admin = 1, то проверка по графе админов, 0 - по обычной; first = 1 - добавление новых данных в бд, 0 - обычный вход, проверка по таблице пользователей
             global name
-            try:
-                while True:
-                    print(f'В имени только буквы английского афлавита в обоих регистрах\n'
-                          f'В пароле только цифры\n'
-                          f'Чтобы выйти обратно в меню, введите две пустых строки')
-
-                    self.name = input('Введите имя пользователя: ')
-                    password = input('Введите пароль: ')
-                    r = re.compile(r'[a-zA-Z]+')
-                    if not r.match(self.name) or password.isnumeric() == False:
-                        raise IncorrectInputExcError
-                    break
-                password = int(password)
-                if first == 0:
-                    if self.BD_check(self.name, password, admin) == 0:
-                        raise NoDataInBDError
-                    if admin == 0:
-                        self.main_menu()
+            InterFace.frame.destroy()
+            log_frame = Frame(InterFace.root, bg='blue')
+            log_frame.place(relx=0.25, rely=0.15, relwidth=0.5, relheight=0.5)
+            title1 = Label(log_frame, text='Введите свои данные', bg='red', font=30)
+            title1.pack()
+            LoginInput = Entry(log_frame, bg='white')
+            PasswordInput = Entry(log_frame, bg='white', show='*')
+            LoginInput.pack()
+            PasswordInput.pack()
+            self.name = LoginInput.get()
+            password = PasswordInput.get()
+            r = re.compile(r'[a-zA-Z]+')
+            if not r.match(self.name) or password.isnumeric() == False:
+                titleError = Label(log_frame, text='Неверный ввод', bg='blue', font=20, fg='red')
+                titleError.pack()
+            else:
+                try:
+                    password = int(password)
+                    if first == 0:
+                        if self.BD_check(self.name, password, admin) == 0:
+                            raise NoDataInBDError
+                        if admin == 0:
+                            self.main_menu()
+                        else:
+                            self.admin_menu()
                     else:
-                        self.admin_menu()
-                else:
-                    self.BD_update(self.name, password, admin)
-                    return
-            except IncorrectInputExcError:
-                print('Неправильный ввод, повторите попытку')
-            except NoDataInBDError:
-                print('Такого пользователя нет, повторите попытку')
+                        self.BD_update(self.name, password, admin)
+                        return
+                except IncorrectInputExcError:
+                    print('Неправильный ввод, повторите попытку')
+                except NoDataInBDError:
+                    print('Такого пользователя нет, повторите попытку')
 
 
 
@@ -403,9 +410,12 @@ class Menu(BD):
         best_parametres = [10000000000000, 10000000000000, 10000000000000, 10000000000000, 'FFF']#длина ширина высота тяжесть
         for i in range(len(list_of_cars_for_check)):
             if list_of_cars_for_check[i][-1] != 1:
-                if offer_LeftCap <= list_of_cars_for_check[i][5] and offer_length <= list_of_cars_for_check[i][2] and offer_width <= list_of_cars_for_check[i][3] and offer_height <= list_of_cars_for_check[i][4]:
-                    if best_parametres[0] >= list_of_cars_for_check[i][2] and best_parametres[1] >= list_of_cars_for_check[i][3] and best_parametres[2] >= list_of_cars_for_check[i][4] and best_parametres[3] >= list_of_cars_for_check[i][5]:
-                        best_parametres = [list_of_cars_for_check[i][2], list_of_cars_for_check[i][3], list_of_cars_for_check[i][4], list_of_cars_for_check[i][5], list_of_cars_for_check[i][0]]
+                if offer_LeftCap <= list_of_cars_for_check[i][5] and offer_length <= list_of_cars_for_check[i][2] and offer_width <= list_of_cars_for_check[i][3] \
+                        and offer_height <= list_of_cars_for_check[i][4]:
+                    if best_parametres[0] >= list_of_cars_for_check[i][2] and best_parametres[1] >= list_of_cars_for_check[i][3] \
+                            and best_parametres[2] >= list_of_cars_for_check[i][4] and best_parametres[3] >= list_of_cars_for_check[i][5]:
+                        best_parametres = [list_of_cars_for_check[i][2], list_of_cars_for_check[i][3], list_of_cars_for_check[i][4], list_of_cars_for_check[i][5],
+                                           list_of_cars_for_check[i][0]]
 
         if best_parametres[-1] == 'FFF':
             print('В данный момент нет подходящей машины')
@@ -422,9 +432,3 @@ class Menu(BD):
                 take_car = input('Введите id подходящей машины')
                 booking_offer = (self.name, take_car, 'Бронирование', datetime.datetime.now() + datetime.timedelta(days=3))
                 self.add_offer(booking_offer)
-
-
-
-
-v = Menu()
-v.first_menu()
