@@ -32,13 +32,33 @@ class BD: #класс для методов работы с бд
 
     def BD_update(self, name, password, admin, frame): #Запись данных нового аккаунта
         try:
+            if password.isnumeric() == False:
+                raise Exceptions.IncorrectInputExcError
+            user_list = self.view_BD(1)
+            print(user_list)
+            for i in user_list:
+                if i[0] == name:
+                    raise Exceptions.DublicatenameError
             connection2 = sqlite3.connect('AllBD.db')
             cur = connection2.cursor()
             new_item = (name, int(password), admin)
             cur.execute("""INSERT INTO tUsers Values (?, ?, ?)""", new_item)
             cur.close()
+            Succes_Label = Label(frame, text='Регистрация прошла успешно', bg='blue', fg='white', font=20,
+                               width=300)
+            Succes_Label.place(relx=0.395, rely=0.22, width=300)
+        except Exceptions.DublicatenameError:
+            ErrorLabel = Label(frame, text='Данное имя уже занято', bg='blue', fg='red', font=20,
+                               width=300)
+            ErrorLabel.place(relx=0.395, rely=0.22)
+
         except sqlite3.Error as error:
             print('Ошибка при подключение SQLite', error)
+
+        except Exceptions.IncorrectInputExcError:
+            ErrorLabel = Label(frame, text='Пароль должен содержать только цифры', bg='blue', fg='red', font=20, width=30)
+            ErrorLabel.place(relx=0.395, rely=0.22, width=300)
+
         finally:
             if (connection2):
                 connection2.commit()
@@ -49,9 +69,7 @@ class BD: #класс для методов работы с бд
         cur = conection.cursor()
         users = cur.execute("""SELECT * FROM tUsers""")
         for i in users:
-            print()
-            print(i, i[0], name, password, admin)
-            if name == (i[0]) and int(password) == int(i[1]) and admin == (i[2]):
+            if name == (i[0]) and str(password) == str(i[1]) and admin == (i[2]):
                 cur.close()
                 v = InterFace()
                 if admin == 1:
@@ -77,8 +95,7 @@ class BD: #класс для методов работы с бд
             elif model == 'Фура Mercedes-Benz Actros':
                 car = Cars.Truck(int(id))
             check_list = self.view_BD(2)
-            id_list = []
-            for i in id_list:
+            for i in check_list:
                 if int(i[1]) == int(id):
                     raise Exceptions.DublicateidError
             new_item = (car.get_name(), car.get_id(), car.get_length(), car.get_width(), car.get_height(), car.get_LeftCap(), 0)
@@ -88,12 +105,12 @@ class BD: #класс для методов работы с бд
             succes_label.place(relx=0.3, rely=0.4, width=500)
         except sqlite3.Error:
             pass
-        except DublicateidError:
-            succes_label = Label(frame, text='Не вышло сохранить автомобиль', bg='blue', fg='red', font=30)
-            succes_label.place(relx=0.3, rely=0.4, width=500)
-        except TypeError:
-            Errorlab = Label(frame, text='Ошибка ввода! id - только числа')
-            Errorlab.pack()
+        except Exceptions.DublicateidError:
+            Error_label = Label(frame, text='Такой id уже существует', bg='blue', fg='red', font=30)
+            Error_label.place(relx=0.4, rely=0.4, width=500)
+        except ValueError:
+            Errorlab = Label(frame, text='Ошибка ввода! id - только числа', bg='blue', fg='red', font=30)
+            Errorlab.place(relx=0.4, rely=0.4, width=500)
         finally:
             if (connection3):
                 print('Новый автомобиль успешно добавлен в базу')
@@ -122,22 +139,52 @@ class BD: #класс для методов работы с бд
         try:
             connection5 = sqlite3.connect('AllBD.db')
             cur = connection5.cursor()
-
+            if int(end_date) < 2023:
+                raise Exceptions.IncorrectyearError
+            end_month= int(end_month)
+            if end_month > 12 or end_month < 1:
+                raise Exceptions.IncorrectmonthError
+            end_day = int(end_day)
+            if ((end_day not in range(1,32) and (end_month == 1 or end_month == 3 or end_month == 5 or end_month == 7 or end_month==8 or end_month==10 or end_month == 12)) or \
+                    (end_day not in range(1, 31) and (end_month == 4 or end_month == 6 or end_month == 9 or end_month == 11)) or \
+                    (end_day not in range(1, 29) and end_month == 2)):
+                raise Exceptions.IncorrectdayError
+            if int(end_hour) not in range(0, 25):
+                raise Exceptions.IncorrecthourError
+            if int(end_minute) not in range(0, 61):
+                raise Exceptions.IncorrectminuteError
             offer = (name_of_user, name_and_id_of_car[-6:], offer_name, (datetime.datetime(int(end_date), int(end_month), int(end_day), int(end_hour), int(end_minute))))
             cur.execute("""INSERT INTO tOrders Values (?, ?, ?, ?)""", offer)
             cur.close()
             cur1 = connection5.cursor()
             if offer[2] == 'Бронирование':
                 cur1.execute("""UPDATE tCars set Busy=2 where id=?""", (int(offer[1]),))
+                succes_title = Label(frame, text='Бронь оформлена', bg='blue', fg='white', font=30)
+                succes_title.place(relx=0.4, rely=0.65, width=300)
             else:
                 cur1.execute("""UPDATE tCars set Busy=1 where id=?""", (int(offer[1]),))
                 succes_title = Label(frame, text='Заказ успешно отправлен', bg='blue',fg='white', font=30)
                 succes_title.place(relx=0.4, rely=0.3, width=300)
             cur1.close()
+        except Exceptions.IncorrectyearError:
+            error_lab = Label(frame, text='Неверный ввод года', bg='red', font=30)
+            error_lab.place(relx=0.4, rely=0.3, width=300)
+        except Exceptions.IncorrectmonthError:
+            error_lab = Label(frame, text='Неверный ввод месяца', bg='red', font=30)
+            error_lab.place(relx=0.4, rely=0.3, width=300)
+        except Exceptions.IncorrectdayError:
+            error_lab = Label(frame, text='Неверный ввод дня', bg='red', font=30)
+            error_lab.place(relx=0.4, rely=0.3, width=300)
+        except Exceptions.IncorrecthourError:
+            error_lab = Label(frame, text='Неверный ввод часов', bg='red', font=30)
+            error_lab.place(relx=0.4, rely=0.3, width=300)
+        except Exceptions.IncorrectminuteError:
+            error_lab = Label(frame, text='Неверный ввод минут', bg='red', font=30)
+            error_lab.place(relx=0.4, rely=0.3, width=300)
         except sqlite3.Error as error:
             print('При сохранении заказа произошла ошибка', error)
-        except TypeError:
-            error_lab = Label(frame, text='Неверный формат даты!', bg='red', font=30)
+        except ValueError:
+            error_lab = Label(frame, text='Неверный формат ввода!', bg='red', font=30)
             error_lab.place(relx=0.4, rely=0.3, width=300)
         finally:
             if (connection5):
@@ -180,43 +227,58 @@ class BD: #класс для методов работы с бд
 class InterFace(BD):
 
     def place_good_cars(self, frame, offer_LeftCap, offer_length, offer_width, offer_height):
-        list_of_cars_for_check = self.view_BD(2)
-        best_parametres = [10000000000000, 10000000000000, 10000000000000, 10000000000000,
-                           'FFF']  # длина ширина высота тяжесть
-        for i in range(len(list_of_cars_for_check)):
-            if list_of_cars_for_check[i][-1] != 1:
-                if offer_LeftCap <= list_of_cars_for_check[i][5] and offer_length <= list_of_cars_for_check[i][
-                    2] and offer_width <= list_of_cars_for_check[i][3] \
-                        and offer_height <= list_of_cars_for_check[i][4]:
-                    if best_parametres[0] >= list_of_cars_for_check[i][2] and best_parametres[1] >= \
-                            list_of_cars_for_check[i][3] \
-                            and best_parametres[2] >= list_of_cars_for_check[i][4] and best_parametres[3] >= \
-                            list_of_cars_for_check[i][5]:
-                        best_parametres = [list_of_cars_for_check[i][2], list_of_cars_for_check[i][3],
-                                           list_of_cars_for_check[i][4], list_of_cars_for_check[i][5],
-                                           list_of_cars_for_check[i][0]]
-
-        if best_parametres[-1] == 'FFF':
-            havent_label = Label(frame, text='нет подходящих машин', bg='blue', fg='red')
-            havent_label.place(relx=0.32, rely=0.5, width=500)
-        else:
-            var3 = StringVar()
-            good_title = Label(frame, text=f'Вам подходит автомобиль модели {best_parametres[-1]}')
-            good_title.place(relx=0.32, rely=0.5, width=500)
-            good_cars = []
+        try:
+            list_of_cars_for_check = self.view_BD(2)
+            best_parametres = [10000000000000, 10000000000000, 10000000000000, 10000000000000,
+                               'FFF']  # длина ширина высота тяжесть
             for i in range(len(list_of_cars_for_check)):
-                if best_parametres[-1] == list_of_cars_for_check[i][0] and list_of_cars_for_check[i][-1] != 1:
-                    good_cars.append([list_of_cars_for_check[i][0], list_of_cars_for_check[i][1]])
-            combobox = ttk.Combobox(frame, textvariable=var3)
-            combobox['values'] = good_cars
-            combobox['state'] = 'readonly'
-            combobox.place(relx=0.3, rely=0.55, width=500)
-            my_date = str(datetime.datetime.now()+datetime.timedelta(days=3))
-            date_str, time_str = my_date.split(' ')[0], my_date.split(' ')[1]
-            fdate = date_str.split('-')
-            ftime = time_str.split(':')
-            param_button = Button(frame, text='Выбрать', bg='white', command=lambda: (self.add_offer(self.name, combobox.get(), 'Бронирование', fdate[0], fdate[1], fdate[2], ftime[0], ftime[1], frame), self.delete_by_time()))
-            param_button.place(relx=0.43, rely=0.6, width=150)
+                if list_of_cars_for_check[i][-1] != 1:
+                    if offer_LeftCap <= list_of_cars_for_check[i][5] and offer_length <= list_of_cars_for_check[i][
+                        2] and offer_width <= list_of_cars_for_check[i][3] \
+                            and offer_height <= list_of_cars_for_check[i][4]:
+                        if best_parametres[0] >= list_of_cars_for_check[i][2] and best_parametres[1] >= \
+                                list_of_cars_for_check[i][3] \
+                                and best_parametres[2] >= list_of_cars_for_check[i][4] and best_parametres[3] >= \
+                                list_of_cars_for_check[i][5]:
+                            best_parametres = [list_of_cars_for_check[i][2], list_of_cars_for_check[i][3],
+                                               list_of_cars_for_check[i][4], list_of_cars_for_check[i][5],
+                                               list_of_cars_for_check[i][0]]
+
+            if best_parametres[-1] == 'FFF':
+                havent_label = Label(frame, text='нет подходящих машин', bg='blue', fg='red')
+                havent_label.place(relx=0.32, rely=0.5, width=500)
+            else:
+                if int(offer_LeftCap) < 0 or int(offer_length) < 0 or int(offer_width) < 0 or int(offer_height) < 0:
+                    raise Exceptions.IncorrectcargoinfoError
+
+                var3 = StringVar()
+                good_title = Label(frame, text=f'Вам подходит автомобиль модели {best_parametres[-1]}')
+                good_title.place(relx=0.32, rely=0.5, width=500)
+                good_cars = []
+                for i in range(len(list_of_cars_for_check)):
+                    if best_parametres[-1] == list_of_cars_for_check[i][0] and list_of_cars_for_check[i][-1] != 1:
+                        good_cars.append([list_of_cars_for_check[i][0], list_of_cars_for_check[i][1]])
+                combobox = ttk.Combobox(frame, textvariable=var3)
+                combobox['values'] = good_cars
+                combobox['state'] = 'readonly'
+                combobox.place(relx=0.32, rely=0.55, width=500)
+                my_date = str(datetime.datetime.now()+datetime.timedelta(days=3))
+                date_str, time_str = my_date.split(' ')[0], my_date.split(' ')[1]
+                fdate = date_str.split('-')
+                ftime = time_str.split(':')
+                param_button = Button(frame, text='Выбрать', bg='white', command=lambda: (self.add_offer(self.name, combobox.get(), 'Бронирование', fdate[0], fdate[1], fdate[2], ftime[0], ftime[1], frame), self.delete_by_time()))
+                param_button.place(relx=0.43, rely=0.6, width=150)
+
+
+
+        except ValueError:
+            error_lab = Label(frame, text='Вводите только числа', bg='red', font=30)
+            error_lab.place(relx=0.4, rely=0.5, width=300)
+        except Exceptions.IncorrectcargoinfoError:
+            error_lab = Label(frame, text='Некорректная информация о грузе', bg='red', font=30)
+            error_lab.place(relx=0.4, rely=0.5, width=350)
+
+
 
 
 
@@ -266,36 +328,47 @@ class InterFace(BD):
 
 
     def pick_car_for_offer_page(self, name_of_offer, LeftCap_offer, lenght_offer, width_offer, height_offer, date_offer, month_offer, day_offer,hour_offer, minute_offer):
-        pick_car_frame = Frame(root, bg='blue')
-        pick_car_frame.place(relwidth=1, relheight=1)
+        try:
+            pick_car_frame = Frame(root, bg='blue')
+            pick_car_frame.place(relwidth=1, relheight=1)
 
-        exit_btn = Button(pick_car_frame, text='X', bg='red', fg='white', command=exit, font=200)
-        exit_btn.place(relx=0.98, rely=0, height=30, width=40)
+            exit_btn = Button(pick_car_frame, text='X', bg='red', fg='white', command=exit, font=200)
+            exit_btn.place(relx=0.98, rely=0, height=30, width=40)
 
-        pcf_title = Label(pick_car_frame, text='Выберите автомобиль', bg='red', font=30)
-        pcf_title.place(relx=0.4, rely=0.1, width=300)
+            pcf_title = Label(pick_car_frame, text='Выберите автомобиль', bg='red', font=30)
+            pcf_title.place(relx=0.4, rely=0.1, width=300)
+            good_cars = []
+            list_of_cars_for_offer = self.view_BD(2)
+            for i in range(len(list_of_cars_for_offer)):
+                if list_of_cars_for_offer[i][-1] != 1:
+                    if int(LeftCap_offer) <= list_of_cars_for_offer[i][5] and int(lenght_offer) <= \
+                            list_of_cars_for_offer[i][
+                                2] and int(width_offer) <= list_of_cars_for_offer[i][3] and int(height_offer) <= \
+                            list_of_cars_for_offer[i][4]:
+                        good_cars.append([list_of_cars_for_offer[i][0], list_of_cars_for_offer[i][1]]) #модель и id
 
-        good_cars = []
-        list_of_cars_for_offer = self.view_BD(2)
-        for i in range(len(list_of_cars_for_offer)):
-            if list_of_cars_for_offer[i][-1] != 1:
-                if int(LeftCap_offer) <= list_of_cars_for_offer[i][5] and int(lenght_offer) <= \
-                        list_of_cars_for_offer[i][
-                            2] and int(width_offer) <= list_of_cars_for_offer[i][3] and int(height_offer) <= \
-                        list_of_cars_for_offer[i][4]:
-                    good_cars.append([list_of_cars_for_offer[i][0], list_of_cars_for_offer[i][1]]) #модель и id
+            back_btn = Button(pick_car_frame, text='Назад', bg='white',
+                              command=lambda: (pick_car_frame.destroy(), self.delete_by_time()))
+            back_btn.place(relx=0.45, rely=0.45, width=150)
 
-        var2 = StringVar()
-        combobox = ttk.Combobox(pick_car_frame, textvariable=var2)
-        combobox['values'] = good_cars
-        combobox['state'] = 'readonly'
-        combobox.place(relx=0.35, rely=0.2, width=500)
+            if int(LeftCap_offer) < 0 or int(lenght_offer) < 0 or int(width_offer) < 0 or int(height_offer) < 0:
+                raise Exceptions.IncorrectcargoinfoError
 
-        final_button = Button(pick_car_frame, bg='white', text='Отправить заказ', command=lambda: (self.add_offer(self.name, combobox.get(), name_of_offer, date_offer, month_offer, day_offer, hour_offer, minute_offer, pick_car_frame), self.delete_by_time()))
-        final_button.place(relx=0.45, rely=0.4, width=150)
+            var2 = StringVar()
+            combobox = ttk.Combobox(pick_car_frame, textvariable=var2)
+            combobox['values'] = good_cars
+            combobox['state'] = 'readonly'
+            combobox.place(relx=0.35, rely=0.2, width=500)
 
-        back_btn = Button(pick_car_frame, text='Назад', bg='white', command=lambda: (pick_car_frame.destroy(), self.delete_by_time()))
-        back_btn.place(relx=0.45, rely=0.45, width=150)
+            final_button = Button(pick_car_frame, bg='white', text='Отправить заказ', command=lambda: (self.add_offer(self.name, combobox.get(), name_of_offer, date_offer, month_offer, day_offer, hour_offer, minute_offer, pick_car_frame), self.delete_by_time()))
+            final_button.place(relx=0.45, rely=0.4, width=150)
+
+        except ValueError:
+            error_lab = Label(pick_car_frame, text='Вводите только числа', bg='red', font=30)
+            error_lab.place(relx=0.4, rely=0.3, width=300)
+        except Exceptions.IncorrectcargoinfoError:
+            error_lab = Label(pick_car_frame, text='Некорректная информация о грузе', bg='red', font=30)
+            error_lab.place(relx=0.4, rely=0.3, width=350)
 
 
     def new_offer_page(self):
@@ -679,7 +752,7 @@ class InterFace(BD):
         PasswordInput = Entry(log_frame, bg='white', show='*')
         PasswordInput.place(relx=0.47, rely=0.18)
 
-        btn_in2 = Button(log_frame, text='Зарегистрироваться', bg='white', command=lambda: (self.BD_update(self.LoginInput.get(), PasswordInput.get(), 0, log_frame), self.start_page(), log_frame.destroy(), self.delete_by_time()))
+        btn_in2 = Button(log_frame, text='Зарегистрироваться', bg='white', command=lambda: (self.BD_update(self.LoginInput.get(), PasswordInput.get(), 0, log_frame), self.delete_by_time()))
         btn_in2.place(relx=0.45, rely=0.25, width=150)
         back_button = Button(log_frame, text='Вернуться в главное меню', bg='white',
                              command=lambda: (log_frame.destroy(), self.delete_by_time(), self.start_page()))

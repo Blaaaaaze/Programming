@@ -24,10 +24,12 @@ try:
     ('ЗИЛ-5301 (Бычок)', 111118, 420, 200, 200, 3000, 1),
     ('Фура Mercedes-Benz Actros', 111119, 1360, 246, 250, 20000, 0)
     """)
+    new_item = ('Глеб', 2320, 0)
+    cur.execute("""INSERT INTO tUsers VALUES(?, ?, ?)""", new_item)
 
-    new_orders = [('IgorSmir', 111112, 'Кирпичи', datetime.datetime(2023, 5, 16, 14, 10, 0)),
-    ('VeraShal', 111115, 'Молоко', datetime.datetime(2023, 5, 20, 10, 0, 0)),
-    ('Kirill', 111118, 'Шифер', datetime.datetime(2023, 5, 18, 15, 40, 56))]
+    new_orders = [('IgorSmir', 111112, 'Кирпичи', datetime.datetime(2023, 6, 6, 14, 10, 0)),
+    ('VeraShal', 111115, 'Молоко', datetime.datetime(2023, 6, 7, 10, 0, 0)),
+    ('Kirill', 111118, 'Шифер', datetime.datetime(2023, 6, 6, 12, 30, 00))]
 
     cur.executemany("""INSERT INTO tOrders VALUES (?,?,?,?)""", new_orders)
 
